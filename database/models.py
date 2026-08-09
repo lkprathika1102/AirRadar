@@ -29,4 +29,26 @@ def init_db():
     
     conn.commit()
     conn.close()
+
+def upsert_device(mac, name, timestamp):
+    conn = sqlite3.connect("air_radar.db")
+    cursor = conn.cursor()
     
+    cursor.execute("SELECT count FROM devices WHERE mac = ?", (mac,))
+    row = cursor.fetchone()
+    
+    if row:
+        new_count = row[0] + 1
+        cursor.execute("""
+            UPDATE devices 
+            SET name = ?, last_seen = ?, count = ? 
+            WHERE mac = ?
+        """, (name, timestamp, new_count, mac))
+    else:
+        cursor.execute("""
+            INSERT INTO devices (mac, name, first_seen, last_seen, count) 
+            VALUES (?, ?, ?, ?, 1)
+        """, (mac, name, timestamp, timestamp))
+    
+    conn.commit()
+    conn.close()
