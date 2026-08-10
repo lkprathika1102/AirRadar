@@ -56,7 +56,7 @@ def upsert_device(mac, name, timestamp):
 def log_measurement(mac, timestamp, raw_rssi, filtered_rssi, distance):
     conn = sqlite3.connect("air_radar.db")
     cursor = conn.cursor()
-
+    
     cursor.execute("""
         INSERT INTO rssi_logs (mac, timestamp, raw_rssi, filtered_rssi, distance) 
         VALUES (?, ?, ?, ?, ?)
