@@ -16,3 +16,18 @@ class KalmanFilter1D:
         self.p = (1 - k) * self.p
         
         return self.x
+
+class SignalProcessor:
+    def __init__(self, measured_power=-60, path_loss_exponent=2.0):
+        self.measured_power = measured_power
+        self.path_loss_exponent = path_loss_exponent
+        self.filters = {}
+
+    def process(self, mac, rssi):
+        if mac not in self.filters:
+            self.filters[mac] = KalmanFilter1D()
+        
+        filtered_rssi = self.filters[mac].update(rssi)
+        distance = 10 ** ((self.measured_power - filtered_rssi) / (10 * self.path_loss_exponent))
+        
+        return filtered_rssi, distance
