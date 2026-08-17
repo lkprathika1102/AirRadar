@@ -1,7 +1,9 @@
 import asyncio
+from datetime import datetime
 from bleak import BleakScanner
 from core.filter import SignalProcessor
 from core.tracker import PersistenceEngine
+from database.models import upsert_device, log_measurement
 
 class BLEManager:
     def __init__(self, detection_callback):
@@ -12,15 +14,27 @@ class BLEManager:
 
     async def handle_detection(self, device, advertisement_data):
         mac = device.address
+        name = device.name or "Unknown"
         rssi = advertisement_data.rssi
+        timestamp = datetime.now().isoformat()
         
         filtered_rssi, distance = self.processor.process(mac, rssi)
         self.tracker.add_observation(mac, distance)
         is_threat = self.tracker.is_suspicious(mac)
         
+        await asyncio.to_thread(upsert_device, mac, name, timestamp)
+        await asyncio.to_thread(
+            log_measurement, 
+            mac, 
+            timestamp, 
+            rssi, 
+            filtered_rssi, 
+            distance
+        )
+        
         payload = {
             "mac": mac,
-            "name": device.name,
+            "name": name,
             "rssi": rssi,
             "filtered_rssi": filtered_rssi,
             "distance": distance,
