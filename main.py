@@ -1,6 +1,8 @@
+import asyncio
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from database.models import init_db
+from core.scanner import BLEManager
 from typing import List
 
 app = FastAPI()
@@ -22,9 +24,14 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
+async def scanner_callback(payload):
+    await manager.broadcast(payload)
+
 @app.on_event("startup")
 async def startup_event():
     init_db()
+    scanner = BLEManager(scanner_callback)
+    asyncio.create_task(scanner.start_scan())
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
