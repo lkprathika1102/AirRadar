@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirRadar</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <div class="brand">
+                <h1>AirRadar</h1>
+                <div id="connection-status" class="status-off">OFFLINE</div>
+            </div>
+            <div class="system-metrics">
+                <div class="metric">DEVICES: <span id="device-count">0</span></div>
+                <div class="metric">THREATS: <span id="threat-count">0</span></div>
+            </div>
+        </header>
+
+        <main>
+            <div id="radar-container">
+                <canvas id="radar-canvas"></canvas>
+            </div>
+            <div id="telemetry-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>DEVICE</th>
+                            <th>RSSI</th>
+                            <th>DIST</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="device-list"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script src="/static/radar.js"></script>
+</body>
+</html>
