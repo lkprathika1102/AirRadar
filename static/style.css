@@ -117,3 +117,33 @@ td {
     font-size: 0.9rem;
     border-bottom: 1px solid #1a1a1a;
 }
+
+tr:hover {
+    background-color: #1a1a1a;
+}
+
+.badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    border-radius: 3px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.badge-safe {
+    color: var(--accent-color);
+    border: 1px solid var(--accent-color);
+}
+
+.badge-threat {
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+    animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(255, 62, 62, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(255, 62, 62, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 62, 62, 0); }
+}
