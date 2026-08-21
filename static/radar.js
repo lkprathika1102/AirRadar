@@ -6,6 +6,7 @@ let sweepAngle = 0;
 const RING_COUNT = 4;
 const RING_COLOR = '#222';
 const ACCENT_COLOR = '#00ff41';
+const DANGER_COLOR = '#ff3e3e';
 const SWEEP_COLOR = 'rgba(0, 255, 65, 0.5)';
 
 const statusEl = document.getElementById('connection-status');
@@ -82,10 +83,37 @@ function drawSweep() {
     ctx.stroke();
 }
 
+function drawTargets() {
+    const maxRadius = width * 0.45;
+    const maxDistance = 15;
+
+    Object.values(devices).forEach(dev => {
+        const radius = (dev.distance / maxDistance) * maxRadius;
+        const clampedRadius = Math.min(radius, maxRadius);
+        
+        const x = centerX + Math.cos(dev.angle) * clampedRadius;
+        const y = centerY + Math.sin(dev.angle) * clampedRadius;
+
+        ctx.fillStyle = dev.is_threat ? DANGER_COLOR : ACCENT_COLOR;
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (dev.is_threat) {
+            ctx.strokeStyle = DANGER_COLOR;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(x, y, 8, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+    });
+}
+
 function render() {
     ctx.clearRect(0, 0, width, height);
     
     drawGrid();
+    drawTargets();
     drawSweep();
     
     sweepAngle += 0.03;
@@ -113,8 +141,11 @@ function initWebSocket() {
 
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
+        const angle = devices[data.mac]?.angle || Math.random() * Math.PI * 2;
+        
         devices[data.mac] = {
             ...data,
+            angle: angle,
             lastSeen: Date.now()
         };
         updateMetrics();
