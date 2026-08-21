@@ -12,6 +12,7 @@ const SWEEP_COLOR = 'rgba(0, 255, 65, 0.5)';
 const statusEl = document.getElementById('connection-status');
 const deviceCountEl = document.getElementById('device-count');
 const threatCountEl = document.getElementById('threat-count');
+const deviceListEl = document.getElementById('device-list');
 
 let devices = {};
 
@@ -109,9 +110,27 @@ function drawTargets() {
     });
 }
 
+function cleanupDevices() {
+    const now = Date.now();
+    let changed = false;
+
+    for (const mac in devices) {
+        if (now - devices[mac].lastSeen > 10000) {
+            delete devices[mac];
+            changed = true;
+        }
+    }
+
+    if (changed) {
+        updateMetrics();
+        updateTable();
+    }
+}
+
 function render() {
     ctx.clearRect(0, 0, width, height);
     
+    cleanupDevices();
     drawGrid();
     drawTargets();
     drawSweep();
@@ -122,6 +141,27 @@ function render() {
     }
     
     requestAnimationFrame(render);
+}
+
+function updateTable() {
+    deviceListEl.innerHTML = '';
+    
+    Object.values(devices)
+        .sort((a, b) => a.distance - b.distance)
+        .forEach(dev => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${dev.name || dev.mac}</td>
+                <td>${Math.round(dev.rssi)}</td>
+                <td>${dev.distance.toFixed(2)}m</td>
+                <td>
+                    <span class="badge ${dev.is_threat ? 'badge-threat' : 'badge-safe'}">
+                        ${dev.is_threat ? 'THREAT' : 'SAFE'}
+                    </span>
+                </td>
+            `;
+            deviceListEl.appendChild(row);
+        });
 }
 
 function initWebSocket() {
@@ -149,6 +189,7 @@ function initWebSocket() {
             lastSeen: Date.now()
         };
         updateMetrics();
+        updateTable();
     };
 }
 
