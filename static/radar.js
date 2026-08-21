@@ -8,6 +8,12 @@ const RING_COLOR = '#222';
 const ACCENT_COLOR = '#00ff41';
 const SWEEP_COLOR = 'rgba(0, 255, 65, 0.5)';
 
+const statusEl = document.getElementById('connection-status');
+const deviceCountEl = document.getElementById('device-count');
+const threatCountEl = document.getElementById('threat-count');
+
+let devices = {};
+
 function resize() {
     width = window.innerWidth > 800 ? 600 : window.innerWidth * 0.8;
     height = width;
@@ -90,6 +96,38 @@ function render() {
     requestAnimationFrame(render);
 }
 
+function initWebSocket() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const socket = new WebSocket(`${protocol}//${window.location.host}/ws/radar`);
+
+    socket.onopen = () => {
+        statusEl.innerText = 'ONLINE';
+        statusEl.className = 'status-on';
+    };
+
+    socket.onclose = () => {
+        statusEl.innerText = 'OFFLINE';
+        statusEl.className = 'status-off';
+        setTimeout(initWebSocket, 3000);
+    };
+
+    socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        devices[data.mac] = {
+            ...data,
+            lastSeen: Date.now()
+        };
+        updateMetrics();
+    };
+}
+
+function updateMetrics() {
+    const deviceList = Object.values(devices);
+    deviceCountEl.innerText = deviceList.length;
+    threatCountEl.innerText = deviceList.filter(d => d.is_threat).length;
+}
+
 window.addEventListener('resize', resize);
 resize();
 render();
+initWebSocket();
