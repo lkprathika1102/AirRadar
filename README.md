@@ -62,3 +62,4 @@ sudo uvicorn main:app --reload
 ### WebSocket Disconnected
 Check that the Python backend is running. The frontend will attempt to reconnect every 3 seconds if the connection is lost.
 ```
+<img width="614" height="194" alt="Screen Shot 2026-08-28 at 23 29 42 PM" src="https://github.com/user-attachments/assets/baddfec5-312d-47f3-a006-86992dff9495" />
