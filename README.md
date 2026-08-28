@@ -5,7 +5,7 @@
 Passive BLE proximity tracking system. It scans for BLE advertisement packets, filters signal noise, and estimates distance to detect persistent nearby devices.
 Best works in public places
 ## Setup
-
+The project is delivered as a standalone macOS binary located in the GitHub Releases section. It bundles the FastAPI backend, the BLE scanning engine, and the HTML5 frontend into a single executable for dependencyfre deployment on macOS
 ### Prerequisites
 - Python 3.10+
 - Bluetooth hardware (BLE capable)
