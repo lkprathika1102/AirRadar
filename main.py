@@ -5,6 +5,7 @@ import uvicorn
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 from database.models import init_db
 from core.scanner import BLEManager
 from typing import List
@@ -49,7 +50,7 @@ app.mount("/static", StaticFiles(directory=get_resource_path("static")), name="s
 
 @app.get("/")
 async def index():
-    return {"status": "AirRadar active"}
+    return RedirectResponse(url="/static/index.html")
 
 @app.websocket("/ws/radar")
 async def websocket_endpoint(websocket: WebSocket):
