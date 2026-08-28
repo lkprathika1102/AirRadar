@@ -1,9 +1,16 @@
 import asyncio
+import os
+import sys
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from database.models import init_db
 from core.scanner import BLEManager
 from typing import List
+
+def get_resource_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return relative_path
 
 app = FastAPI()
 
@@ -33,7 +40,7 @@ async def startup_event():
     scanner = BLEManager(scanner_callback)
     asyncio.create_task(scanner.start_scan())
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory=get_resource_path("static")), name="static")
 
 @app.get("/")
 async def index():
